@@ -126,10 +126,12 @@ if __name__ == '__main__':
         print ('精度为四级')
         print ('尽可能不用GM(1,1)模型\nX(k) = ',X0[0]-a[1]/a[0], 'exp(', -a[0], '(k-1))', a[1]/a[0])
 
-    X2013 = Series(np.array([12.08]), index=pd.period_range('2013', '2013', freq='A-DEC'))
-    X_Return = X_Return.append(X2013)
+    X2014 = Series(np.array([12.07]), index=pd.period_range('2014', '2014', freq='A-DEC'))
+    X_Return = X_Return.append(X2014)
     print (X_Return)
 
     B = pd.DataFrame([X0, X_Return], index=['X0', 'X_Return'])
     B = np.transpose(B)
     B.plot()
+    plt.plot(B)
+    plt.show()
