@@ -49,9 +49,10 @@ def Return(XK):                 #预测值还原
 
 if __name__ == '__main__':
     #初始化原始数据
-    date = pd.period_range('2000','2005',freq = 'A-DEC')
-    tmp = np.array([1,2,3,4,5,6])
-    data = np.array([132,92,118,130,187,207])
+    date = pd.period_range('1996','2016',freq = 'A-DEC')
+    tmp = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21])
+    data = np.array([16.98, 16.57, 15.64, 14.64, 14.03, 13.38, 12.86, 12.41, 12.29, 12.4,
+                     12.09, 12.1, 12.14, 11.95, 11.9, 11.93, 12.1, 12.08, 12.37, 12.07, 12.95])
     X0 = Series(data,index = date)
     X0_copy = Series(data,index=tmp)
     print ('原始数据为:\n')
