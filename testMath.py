@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 
 def Identification_Algorithm(x):    #辨识算法
-    B = np.array([[1]*2]*17)
+    B = np.array([[1]*2]*10)
     tmp = np.cumsum(x)
 
     print("x len:", len(x))
@@ -35,7 +35,7 @@ def GM_Model(X0,a,tmp):          #GM(1,1)模型
     for i in range(len(A)):
         A[i] = a[1]/a[0] + (X0[0]-a[1]/a[0])*np.exp(a[0]*(tmp[i]-1)*(-1))
     print ('GM(1,1)模型为:\nX(k) = ',X0[0]-a[1]/a[0],'exp(',-a[0],'(k-1))',a[1]/a[0])
-    XK = Series(A,index=pd.period_range('1996','2013',freq = 'A-DEC'))
+    XK = Series(A,index=pd.period_range('2003','2013',freq = 'A-DEC'))
     print ('GM(1,1)模型计算值为:')
     print (XK)
     return XK;
@@ -48,7 +48,7 @@ def Return(XK):                 #预测值还原
             tmp[i] = XK[i]
         else:
             tmp[i] = XK[i] - XK[i-1]
-    X_Return = Series(tmp,index=pd.period_range('1996','2013',freq = 'A-DEC'))
+    X_Return = Series(tmp,index=pd.period_range('2003','2013',freq = 'A-DEC'))
     print ('还原值为:\n')
     print (X_Return)
     return X_Return
@@ -56,10 +56,10 @@ def Return(XK):                 #预测值还原
 
 if __name__ == '__main__':
     # 初始化原始数据
-    date = pd.period_range('1996','2013',freq = 'A-DEC')
-    tmp = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
-    data = np.array([16.98, 16.57, 15.64, 14.64, 14.03, 13.38, 12.86, 12.41, 12.29, 12.4,
-                     12.09, 12.1, 12.14, 11.95, 11.9, 11.93, 12.1, 12.08])
+    date = pd.period_range('2003','2013',freq = 'A-DEC')
+    tmp = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+    data = np.array([129227, 129988, 130756, 131448, 132129, 132802, 133450, 134091, 134735, 135404, 136072])
+    data = data ** (1 / 10)
     X0 = Series(data,index = date)
     X0_copy = Series(data,index=tmp)
     print ('原始数据为:\n')
@@ -126,7 +126,9 @@ if __name__ == '__main__':
         print ('精度为四级')
         print ('尽可能不用GM(1,1)模型\nX(k) = ',X0[0]-a[1]/a[0], 'exp(', -a[0], '(k-1))', a[1]/a[0])
 
-    X2014 = Series(np.array([12.07]), index=pd.period_range('2014', '2014', freq='A-DEC'))
+    print('精度T：', T)
+
+    X2014 = Series(np.array([136782]) ** (1 / 10), index=pd.period_range('2014', '2014', freq='A-DEC'))
     X_Return = X_Return.append(X2014)
     print (X_Return)
 
