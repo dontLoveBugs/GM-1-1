@@ -13,10 +13,14 @@ import matplotlib.pyplot as plt
 
 
 def Identification_Algorithm(x):    #辨识算法
-    B = np.array([[1]*2]*5)
+    B = np.array([[1]*2]*17)
     tmp = np.cumsum(x)
+
+    print("x len:", len(x))
+    print("tmp len:", len(tmp))
     for i in range(len(x)-1):
         B[i][0] = ( tmp[i] + tmp[i+1] ) * (-1.0) / 2
+        print(i)
     Y = np.transpose(x[1:])
     BT = np.transpose(B)
     a = np.linalg.inv(np.dot(BT,B))
@@ -25,15 +29,17 @@ def Identification_Algorithm(x):    #辨识算法
     a = np.transpose(a)
     return a;
 
+
 def GM_Model(X0,a,tmp):          #GM(1,1)模型
     A = np.ones(len(X0))
     for i in range(len(A)):
         A[i] = a[1]/a[0] + (X0[0]-a[1]/a[0])*np.exp(a[0]*(tmp[i]-1)*(-1))
     print ('GM(1,1)模型为:\nX(k) = ',X0[0]-a[1]/a[0],'exp(',-a[0],'(k-1))',a[1]/a[0])
-    XK = Series(A,index=pd.period_range('2000','2005',freq = 'A-DEC'))
+    XK = Series(A,index=pd.period_range('1996','2013',freq = 'A-DEC'))
     print ('GM(1,1)模型计算值为:')
     print (XK)
     return XK;
+
 
 def Return(XK):                 #预测值还原
     tmp = np.ones(len(XK))
@@ -42,39 +48,40 @@ def Return(XK):                 #预测值还原
             tmp[i] = XK[i]
         else:
             tmp[i] = XK[i] - XK[i-1]
-    X_Return = Series(tmp,index=pd.period_range('2000','2005',freq = 'A-DEC'))
+    X_Return = Series(tmp,index=pd.period_range('1996','2013',freq = 'A-DEC'))
     print ('还原值为:\n')
     print (X_Return)
     return X_Return
 
+
 if __name__ == '__main__':
-    #初始化原始数据
-    date = pd.period_range('1996','2016',freq = 'A-DEC')
-    tmp = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21])
+    # 初始化原始数据
+    date = pd.period_range('1996','2013',freq = 'A-DEC')
+    tmp = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
     data = np.array([16.98, 16.57, 15.64, 14.64, 14.03, 13.38, 12.86, 12.41, 12.29, 12.4,
-                     12.09, 12.1, 12.14, 11.95, 11.9, 11.93, 12.1, 12.08, 12.37, 12.07, 12.95])
+                     12.09, 12.1, 12.14, 11.95, 11.9, 11.93, 12.1, 12.08])
     X0 = Series(data,index = date)
     X0_copy = Series(data,index=tmp)
     print ('原始数据为:\n')
     print(X0)
 
-    #对原始数据惊醒一次累加
+    # 对原始数据惊醒一次累加
     X1 = np.cumsum(X0)
     print ('原始数据累加为:')
     print(X1)
 
-    #辨识算法
+    # 辨识算法
     a = Identification_Algorithm(data)
     print ('a矩阵为:')
     print (a)
 
-    #GM(1,1)模型
+    # GM(1,1)模型
     XK = GM_Model(X0,a,tmp)
 
-    #预测值还原
+    # 预测值还原
     X_Return = Return(XK)
 
-    #预测值即预测值精度表
+    # 预测值即预测值精度表
     X_Compare1 = np.ones(len(X0))
     X_Compare2 = np.ones(len(X0))
     for i in range(len(data)):
@@ -85,22 +92,22 @@ if __name__ == '__main__':
     print ('预测值即预测值精度表')
     print (X_Compare)
 
-    #模型检验
-    error_square = np.dot(X_Compare,np.transpose(X_Compare))    #残差平方和
-    error_avg = np.mean(error_square)                           #平均相对误差
+    # 模型检验
+    error_square = np.dot(X_Compare,np.transpose(X_Compare))    # 残差平方和
+    error_avg = np.mean(error_square)                           # 平均相对误差
 
-    S = 0                                                       #X0的关联度
+    S = 0                                                       # X0的关联度
     for i in range(1,len(X0)-1,1):
         S += X0[i]-X0[0]+(XK[-1]-XK[0])/2
     S = np.abs(S)
 
-    SK = 0                                                      #XK的关联度
+    SK = 0                                                      # XK的关联度
     for i in range(1,len(XK)-1,1):
         SK += XK[i]-XK[0]+(XK[-1]-XK[0])/2
     SK = np.abs(SK)
 
-    S_Sub = 0                                                   #|S-SK|b
-    for i in range(1,len(XK)-1,1):
+    S_Sub = 0                                                   # |S-SK|b
+    for i in range(1, len(XK)-1, 1):
         S_Sub += X0[i]-X0[0]-(XK[i]-XK[0])+((X0[-1]-X0[0])-(XK[i]-XK[0]))/2
     S_Sub = np.abs(S_Sub)
 
@@ -108,22 +115,21 @@ if __name__ == '__main__':
 
     if T >= 0.9:
         print ('精度为一级')
-        print ('可以用GM(1,1)模型\nX(k) = ',X0[0]-a[1]/a[0],'exp(',-a[0],'(k-1))',a[1]/a[0])
+        print ('可以用GM(1,1)模型\nX(k) = ',X0[0]-a[1]/a[0], 'exp(', -a[0], '(k-1))', a[1]/a[0])
     elif T >= 0.8:
         print ('精度为二级')
-        print ('可以用GM(1,1)模型\nX(k) = ',X0[0]-a[1]/a[0],'exp(',-a[0],'(k-1))',a[1]/a[0])
+        print ('可以用GM(1,1)模型\nX(k) = ',X0[0]-a[1]/a[0], 'exp(', -a[0], '(k-1))', a[1]/a[0])
     elif T >= 0.7:
         print ('精度为三级')
-        print ('谨慎用GM(1,1)模型\nX(k) = ',X0[0]-a[1]/a[0],'exp(',-a[0],'(k-1))',a[1]/a[0])
+        print ('谨慎用GM(1,1)模型\nX(k) = ',X0[0]-a[1]/a[0], 'exp(', -a[0], '(k-1))', a[1]/a[0])
     elif T >= 0.6:
         print ('精度为四级')
-        print ('尽可能不用GM(1,1)模型\nX(k) = ',X0[0]-a[1]/a[0],'exp(',-a[0],'(k-1))',a[1]/a[0])
+        print ('尽可能不用GM(1,1)模型\nX(k) = ',X0[0]-a[1]/a[0], 'exp(', -a[0], '(k-1))', a[1]/a[0])
 
-
-    X2006 = Series(np.array([259.4489]),index=pd.period_range('2006','2006',freq = 'A-DEC'))
-    X_Return = X_Return.append(X2006)
+    X2013 = Series(np.array([12.08]), index=pd.period_range('2013', '2013', freq='A-DEC'))
+    X_Return = X_Return.append(X2013)
     print (X_Return)
 
-    B = pd.DataFrame([X0,X_Return],index=['X0','X_Return'])
+    B = pd.DataFrame([X0, X_Return], index=['X0', 'X_Return'])
     B = np.transpose(B)
     B.plot()
